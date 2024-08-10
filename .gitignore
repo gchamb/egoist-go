@@ -5,3 +5,4 @@ tmp/
 
 # JetBrains
 .idea/
+.env

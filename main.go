@@ -1,32 +1,32 @@
 package main
 
 import (
-	"egoist/database"
+	"fmt"
+	"net/http"
+	"os"
+
+	"egoist/app/routes"
+
+	"github.com/go-chi/chi/v5"
 )
 
-func main() 
-	// database.ConnectDB()
+func main() {
+	router := chi.NewRouter()
+	
+	// register routes
+	router.Route("/api/v1", func(r chi.Router) {
+		routes.RegisterHealthRoutes(r)
+	})
 
-	// fmt.Printf("The %s database has been initialized.\n", db.Name())
+	var port string
+	if port = os.Getenv("PORT"); port == "" {
+		panic("The environment variable PORT wasn't provided.")
+	}
 
-	// router := chi.NewRouter()
-	// router.Use(middleware.Logger)
-	// router.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
-	// 	write, err := w.Write([]byte("Server is up!"))
-	// 	if err != nil {
-	// 		fmt.Println(write)
-	// 	}
-	// })
-
-	// var port string
-	// if port = os.Getenv("PORT"); port == ""{
-	// 	panic("The environment variable PORT wasn't provided.")
-	// }
-
-	// fmt.Printf("Listening on port %s....\n", port)
-	// err := http.ListenAndServe(fmt.Sprintf(":%s", port), router)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	return
-	// }
+	fmt.Printf("Listening on port %s....\n", port)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", port), router)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }

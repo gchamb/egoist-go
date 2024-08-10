@@ -6,7 +6,7 @@ services:
     ports:
       - 3000:3000
     volumes:
-      - ./backend/:/home/app
+      - ./:/home/app
     environment:
       - MYSQL_CONNECTION_STRING=root:password@(mysql_db)/egoist?parseTime=true
       - PORT=3000
