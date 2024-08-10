@@ -1,13 +1,7 @@
-# macOS
-**/.DS_Store
-
-# Dev build
-build/
+# build files
+bin/
 tmp/
+.air.toml
 
-# Test
-*.out
-*.test
-
-# Environment variables
-.env
+# JetBrains
+.idea/
