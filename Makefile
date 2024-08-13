@@ -1,4 +1,4 @@
-MIGRATIONS_FOLDER = .$(PWD)/app/internal/database/migrations
+MIGRATIONS_FOLDER = ./internal/database/migrations
 DATABASE_URL = mysql://root:password@(localhost:3306)/egoist
 
 migrate.up:
@@ -6,7 +6,7 @@ migrate.up:
 migrate.down:
 	migrate -path $(MIGRATIONS_FOLDER) -database $(DATABASE_URL) -verbose down
 dev:
-	docker compose up -d
+	docker compose --env-file ./local.env up -d
 down:
 	docker compose down
 docker.build:
