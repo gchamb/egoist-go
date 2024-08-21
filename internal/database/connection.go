@@ -1,22 +1,22 @@
 package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
 
-func ConnectDB() (*sql.DB) {
+func ConnectDB() (*sqlx.DB) {
 	var dsn string
 	if dsn = os.Getenv("MYSQL_CONNECTION_STRING"); dsn == "" {
 		panic("MySQL connection string hasn't been provided.")
 	}
 
-	db, err := sql.Open("mysql", dsn)
+	db, err := sqlx.Open("mysql", dsn)
     if err != nil {
         log.Fatal(err)
     }

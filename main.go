@@ -7,15 +7,18 @@ import (
 
 	"egoist/app/routes"
 
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
 	router := chi.NewRouter()
 	
+	router.Use(middleware.Logger)
 	// register routes
 	router.Route("/api/v1", func(r chi.Router) {
 		routes.RegisterHealthRoutes(r)
+		routes.RegisterAuthRoutes(r)
 	})
 
 	var port string

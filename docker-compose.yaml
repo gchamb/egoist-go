@@ -4,12 +4,10 @@ services:
     image: cosmtrek/air
     working_dir: /home/app
     ports:
-      - 3000:3000
+      - 5000:5000
     volumes:
       - ./:/home/app
-    environment:
-      - MYSQL_CONNECTION_STRING=root:password@(mysql_db)/egoist?parseTime=true
-      - PORT=3000
+    env_file: .env
     depends_on:
       - db
 

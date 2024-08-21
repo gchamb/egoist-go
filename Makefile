@@ -1,4 +1,4 @@
-MIGRATIONS_FOLDER = .$(PWD)/app/internal/database/migrations
+MIGRATIONS_FOLDER = ./internal/database/migrations
 DATABASE_URL = mysql://root:password@(localhost:3306)/egoist
 
 migrate.up:
