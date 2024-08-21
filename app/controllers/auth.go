@@ -1,18 +1,21 @@
 package controllers
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
+	"log"
 	"os"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"net/http"
 
 	"egoist/internal/database"
 	"egoist/internal/database/queries"
 	"egoist/internal/structs"
+	"egoist/internal/utils"
 
-	"github.com/google/uuid"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -21,88 +24,170 @@ var googleOauthConfig = &oauth2.Config{
 	ClientID:     os.Getenv("GOOGLE_CLIENT_ID"),
 	ClientSecret: os.Getenv("GOOGLE_CLIENT_SECRET"),
 	Scopes: []string{
-	 "https://www.googleapis.com/auth/userinfo.email",
+		"https://www.googleapis.com/auth/userinfo.email",
 	},
 	Endpoint: google.Endpoint,
-   }
+}
 
 func SignInWithGoogle(w http.ResponseWriter, r *http.Request) {
-	// get the authorization token
 	authCode := r.Header.Get("Authorization")
-	fmt.Println("inside", authCode)
 	if authCode == "" {
-		fmt.Println("Auth code is empty.")
+		log.Println("Authorization code was empty")
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
-
-	// get the access token
 	oauthToken, err := googleOauthConfig.Exchange(r.Context(), authCode)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// get the google user info data
 	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + oauthToken.AccessToken)
 	if err != nil {
-	 fmt.Errorf("failed getting user info: %s", err.Error())
-	 return
+		log.Println("failed getting user info: %s", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-
 	defer response.Body.Close()
 
 	contents, err := io.ReadAll(response.Body)
-
 	if err != nil {
-		fmt.Println("failed read response: %s", err.Error())
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	var user structs.GoogleUser
-	if err = json.Unmarshal(contents, &user); err != nil {
-		fmt.Println(err.Error())
+	var googleUser structs.GoogleUser
+	if err = json.Unmarshal(contents, &googleUser); err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	db := database.ConnectDB()
 	queries := queries.New(db)
 
-	id, err := uuid.NewUUID()
-	if err != nil {
-		fmt.Println(err.Error())
+	user, err := queries.GetUserByEmail(googleUser.Email)
+	if err != nil && err != sql.ErrNoRows {
+		log.Printf("user %s already exist.", googleUser.Email)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	
-	err = queries.InsertUser(structs.User{
-		ID: id.String(),
-		Email: user.Email,
-	})
 
-	if err != nil {
-		fmt.Println(err.Error())
+	var id string
+	if err == sql.ErrNoRows {
+		createdUserId, err := queries.CreateUser(googleUser.Email, nil)
+		if err != nil {
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		id = createdUserId
+	}else{
+		id = user.ID
 	}
 
-	// create user or generate JWT and Refresh Token
+
+	tokens, err := utils.GenerateTokens(id)
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	utils.ReturnJson(w, tokens)
 }
 
 func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
-	// get the email and password
+	
+	var requestBody structs.AuthRequest
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&requestBody)
+	
+	err := requestBody.ValidateAuthRequest()
 
-	// validate the inputs
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	
+	db := database.ConnectDB()
+	queries := queries.New(db)
 
-	// validate if it exists
+	user, err := queries.GetUserByEmail(requestBody.Email)
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	// create the jwt and refresh token
+	
+	if err = bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(requestBody.Password)); err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	 }
+ 
+	
+	tokens, err := utils.GenerateTokens(user.ID)
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
+	utils.ReturnJson(w, tokens)
 }
 
 func SignUpWithEmail(w http.ResponseWriter, r *http.Request) {
-	// get the email and password
+	var requestBody structs.AuthRequest
+	decoder := json.NewDecoder(r.Body)
+	decoder.Decode(&requestBody)
 
-	// validate the inputs
+	err := requestBody.ValidateAuthRequest()
 
-	// validate if it exists
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	// create the jwt and refresh token
+	
+	db := database.ConnectDB()
+	queries := queries.New(db)
+
+	if _, err := queries.GetUserByEmail(requestBody.Email); err != sql.ErrNoRows {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	
+	password, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), 12)
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	passwordAsStr := string(password)
+	userId, err := queries.CreateUser(requestBody.Email, &passwordAsStr)
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	
+	tokens, err := utils.GenerateTokens(userId)
+	if err != nil {
+		log.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	utils.ReturnJson(w, tokens)
 }

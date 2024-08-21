@@ -14,4 +14,6 @@ require (
 require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
+	golang.org/x/crypto v0.26.0 // indirect
 )
