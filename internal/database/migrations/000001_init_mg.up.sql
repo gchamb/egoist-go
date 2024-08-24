@@ -2,6 +2,7 @@ CREATE TABLE user (
     id VARCHAR(36) PRIMARY KEY,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) DEFAULT NULL,
+    current_weight FLOAT DEFAULT NULL,
     goal_weight FLOAT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
