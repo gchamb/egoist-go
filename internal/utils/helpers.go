@@ -58,7 +58,7 @@ func VerifyToken(tokenString string) (string, error){
 func ReturnJson(w http.ResponseWriter, data any){
 		// return tokens to client
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 	
 		json.NewEncoder(w).Encode(data)
 } 
