@@ -20,7 +20,10 @@ func (req *AuthRequest) ValidateAuthRequest() error {
 	return nil
 }
 
-func (req *UpdateUserRequest) ValidateUpdateUserReq() error {
+func (req *OnboardUserRequest) ValidateOnboardUserReq() error {
+	if req.Key == ""{
+		return errors.New("invalid request")
+	}
 	if req.CurrentWeight == nil && req.GoalWeight == nil {
 		return errors.New("invalid request")
 	}

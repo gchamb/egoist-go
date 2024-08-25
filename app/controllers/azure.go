@@ -14,8 +14,8 @@ import (
 
 func GenerateUploadSaSUrl(w http.ResponseWriter, r *http.Request) {
 	
-	blobName := uuid.New().String()
-	blobClient, err := azure.GetBlobClient(azure.PROGRESS_ENTRY_CONTAINER, blobName, true)
+	blobKey := uuid.New().String()
+	blobClient, err := azure.GetBlobClient(azure.PROGRESS_ENTRY_CONTAINER, blobKey, true)
 
 	if err != nil {
 		fmt.Println(err.Error())
@@ -33,7 +33,7 @@ func GenerateUploadSaSUrl(w http.ResponseWriter, r *http.Request) {
 
 	res := map[string]string {
 		"url": sas,
-		"name": blobName,
+		"key": blobKey,
 	}
 
 	utils.ReturnJson(w, res)
