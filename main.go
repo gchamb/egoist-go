@@ -1,11 +1,10 @@
 package main
 
 import (
+	"egoist/app/routes"
 	"fmt"
 	"net/http"
 	"os"
-
-	"egoist/app/routes"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -20,6 +19,7 @@ func main() {
 		routes.RegisterHealthRoutes(r)
 		routes.RegisterAuthRoutes(r)
 		routes.RegisterUserRoutes(r)
+		routes.RegisterAzureRoutes(r)
 	})
 
 	var port string
