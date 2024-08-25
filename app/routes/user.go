@@ -10,6 +10,6 @@ import (
 func RegisterUserRoutes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(middlewares.AuthenticateJWT)
-		r.Patch("/user/update", controllers.UpdateUser)
+		r.Patch("/user/onboard", controllers.OnboardUser)
 	})
 }
