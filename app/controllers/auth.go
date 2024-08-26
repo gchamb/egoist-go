@@ -103,7 +103,7 @@ func SignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	}
 	tokens.IsOnboarded = isOnboarded
 
-	utils.ReturnJson(w, tokens)
+	utils.ReturnJson(w, tokens, http.StatusOK)
 }
 
 func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
@@ -151,7 +151,7 @@ func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
 	}
 	tokens.IsOnboarded = isOnboarded
 
-	utils.ReturnJson(w, tokens)
+	utils.ReturnJson(w, tokens, http.StatusOK)
 }
 
 func SignUpWithEmail(w http.ResponseWriter, r *http.Request) {
@@ -200,5 +200,5 @@ func SignUpWithEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ReturnJson(w, tokens)
+	utils.ReturnJson(w, tokens, http.StatusOK)
 }

@@ -37,5 +37,5 @@ func GenerateUploadSaSUrl(w http.ResponseWriter, r *http.Request) {
 		"key": blobKey,
 	}
 
-	utils.ReturnJson(w, res)
+	utils.ReturnJson(w, res, http.StatusOK)
 }

@@ -72,10 +72,10 @@ func VerifyToken(tokenString string) (string, error){
 	return token.Claims.GetSubject()	
 }
 
-func ReturnJson(w http.ResponseWriter, data any){
+func ReturnJson(w http.ResponseWriter, data any, status int){
 		// return tokens to client
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(status)
 	
 		json.NewEncoder(w).Encode(data)
 } 
