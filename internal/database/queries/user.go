@@ -56,34 +56,21 @@ func (q *Queries) CreateUser(email string, password *string) (string, error){
 	return id.String(), err
 }
 
-func (q *Queries) UpdateUser(ctx context.Context, userDetails structs.UpdateUserRequest, uid string ) (error) {
-		tx, err := q.DB.BeginTx(ctx, &sql.TxOptions{})
-	
-		if err != nil {
-			return err
-		}
-	
+func (q *Queries) UpdateUser(txn *sql.Tx, ctx context.Context, userDetails structs.UpdateUserRequest, uid string) (error) {
 		if userDetails.CurrentWeight == nil && userDetails.GoalWeight == nil {
 			return errors.New("user details must have values")
 		}
 	
 		if userDetails.CurrentWeight != nil {
-			if _, err := tx.Exec("UPDATE user SET current_weight = ? where id = ?", *userDetails.CurrentWeight, uid); err != nil {
-				tx.Rollback()
+			if _, err := txn.Exec("UPDATE user SET current_weight = ? where id = ?", *userDetails.CurrentWeight, uid); err != nil {
 				return err
 			}
 		}
 	
 		if userDetails.GoalWeight != nil {
-			if _, err := tx.Exec("UPDATE user SET goal_weight = ? where id = ?", *userDetails.GoalWeight, uid); err != nil {
-				tx.Rollback()
+			if _, err := txn.Exec("UPDATE user SET goal_weight = ? where id = ?", *userDetails.GoalWeight, uid); err != nil {
 				return err
 			}
-		}
-	
-		if err = tx.Commit(); err != nil {
-			tx.Rollback()
-			return err
 		}
 	
 		return nil

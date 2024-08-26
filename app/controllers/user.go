@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"egoist/internal/database"
 	"egoist/internal/database/queries"
 	"egoist/internal/structs"
@@ -20,6 +21,7 @@ func OnboardUser(w http.ResponseWriter, r *http.Request){
 
 	// validate inputs
 	if err := requestBody.ValidateOnboardUserReq(); err != nil {
+		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -27,14 +29,29 @@ func OnboardUser(w http.ResponseWriter, r *http.Request){
 	db := database.ConnectDB()
 	queries := queries.New(db)
 
-	// Update the user
-	if err := queries.UpdateUser(r.Context(), structs.UpdateUserRequest{GoalWeight: requestBody.GoalWeight, CurrentWeight: requestBody.CurrentWeight}, uid); err != nil {
+	// I want the user to be fully onboarded or not at all
+	txn, err := queries.DB.BeginTx(r.Context(), &sql.TxOptions{})
+	defer txn.Commit()
+
+	if err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// create the initial progress entry for today
+	updateUser := structs.UpdateUserRequest{GoalWeight: requestBody.GoalWeight, CurrentWeight: requestBody.CurrentWeight}
+	if err := queries.UpdateUser(txn, r.Context(), updateUser , uid); err != nil {
+		txn.Rollback()
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	entry := structs.ProgressEntry{AzureBlobKey: requestBody.Key, CurrentWeight: *requestBody.CurrentWeight, UserID: uid}
+	if _, err := queries.CreateProgressEntry(txn, entry); err != nil {
+		txn.Rollback()
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 	
 	w.WriteHeader(http.StatusOK)
 }
