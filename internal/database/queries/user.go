@@ -1,7 +1,10 @@
 package queries
 
 import (
+	"context"
+	"database/sql"
 	"egoist/internal/structs"
+	"errors"
 
 	"github.com/google/uuid"
 )
@@ -28,8 +31,8 @@ func (q *Queries) GetUserByEmail(email string) (structs.User, error){
 
 
 func (q *Queries) InsertUser(user structs.User) (error) {
-	_, err := q.DB.NamedExec(`INSERT INTO user (id, email, password, goal_weight)
-        VALUES (:id, :email, :password, :goal_weight)`, user)
+	_, err := q.DB.NamedExec(`INSERT INTO user (id, email, password, goal_weight, current_weight)
+        VALUES (:id, :email, :password, :goal_weight, :current_weight)`, user)
 		
 	return err
 }
@@ -51,4 +54,24 @@ func (q *Queries) CreateUser(email string, password *string) (string, error){
 	}
 
 	return id.String(), err
+}
+
+func (q *Queries) UpdateUser(txn *sql.Tx, ctx context.Context, userDetails structs.UpdateUserRequest, uid string) (error) {
+		if userDetails.CurrentWeight == nil && userDetails.GoalWeight == nil {
+			return errors.New("user details must have values")
+		}
+	
+		if userDetails.CurrentWeight != nil {
+			if _, err := txn.Exec("UPDATE user SET current_weight = ? where id = ?", *userDetails.CurrentWeight, uid); err != nil {
+				return err
+			}
+		}
+	
+		if userDetails.GoalWeight != nil {
+			if _, err := txn.Exec("UPDATE user SET goal_weight = ? where id = ?", *userDetails.GoalWeight, uid); err != nil {
+				return err
+			}
+		}
+	
+		return nil
 }

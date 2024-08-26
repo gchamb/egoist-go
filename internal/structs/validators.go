@@ -19,3 +19,19 @@ func (req *AuthRequest) ValidateAuthRequest() error {
 
 	return nil
 }
+
+func (req *OnboardUserRequest) ValidateOnboardUserReq() error {
+	if req.Key == "" || req.CurrentWeight == nil || req.GoalWeight == nil {
+		return errors.New("invalid request")
+	}
+
+	if req.CurrentWeight != nil && *req.CurrentWeight  < 70 {
+		return errors.New("invalid current weight value")
+	}
+
+	if req.GoalWeight != nil && *req.GoalWeight  < 70 {
+		return errors.New("invalid goal weight value")
+	}
+
+	return nil
+}

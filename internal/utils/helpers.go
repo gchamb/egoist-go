@@ -11,6 +11,23 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+var MIMETYPES = map[string]string {
+	"image/jpeg":  ".jpg",
+    "image/pjpeg": ".jpg",  // Older MIME type for JPEG
+    "image/png":   ".png",
+    "image/gif":   ".gif",
+    "image/bmp":   ".bmp",
+    "image/webp":  ".webp",
+    "image/tiff":  ".tiff",
+    "image/x-tiff":".tiff",
+    "image/vnd.microsoft.icon": ".ico", // Used for icons
+    "image/x-icon": ".ico", // Alternative MIME type for icons
+    "image/svg+xml": ".svg", // Scalable Vector Graphics
+    "image/heic":   ".heic", // High Efficiency Image Coding (HEIC) for iOS
+    "image/heif":   ".heif", // High Efficiency Image Format (HEIF)
+    "image/avif":   ".avif", // AV1 Image File Format (used on Android and modern browsers)
+}
+
 func GenerateJWT(claims jwt.Claims) (string, error){
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -55,10 +72,10 @@ func VerifyToken(tokenString string) (string, error){
 	return token.Claims.GetSubject()	
 }
 
-func ReturnJson(w http.ResponseWriter, data any){
+func ReturnJson(w http.ResponseWriter, data any, status int){
 		// return tokens to client
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
+		w.WriteHeader(status)
 	
 		json.NewEncoder(w).Encode(data)
 } 

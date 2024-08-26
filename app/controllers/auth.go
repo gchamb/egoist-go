@@ -46,7 +46,7 @@ func SignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 
 	response, err := http.Get("https://www.googleapis.com/oauth2/v2/userinfo?access_token=" + oauthToken.AccessToken)
 	if err != nil {
-		log.Println("failed getting user info: %s", err.Error())
+		log.Println("failed getting user info:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -77,6 +77,7 @@ func SignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var id string
+	isOnboarded := false
 	if err == sql.ErrNoRows {
 		createdUserId, err := queries.CreateUser(googleUser.Email, nil)
 		if err != nil {
@@ -88,6 +89,9 @@ func SignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 		id = createdUserId
 	}else{
 		id = user.ID
+		if user.GoalWeight != nil {
+			isOnboarded = true
+		}
 	}
 
 
@@ -97,8 +101,9 @@ func SignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	tokens.IsOnboarded = isOnboarded
 
-	utils.ReturnJson(w, tokens)
+	utils.ReturnJson(w, tokens, http.StatusOK)
 }
 
 func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
@@ -119,6 +124,7 @@ func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
 	queries := queries.New(db)
 
 	user, err := queries.GetUserByEmail(requestBody.Email)
+	isOnboarded := false
 	if err != nil {
 		log.Println(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
@@ -131,6 +137,10 @@ func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	 }
+
+	 if user.GoalWeight != nil {
+		isOnboarded = true
+	 }
  
 	
 	tokens, err := utils.GenerateTokens(user.ID)
@@ -139,8 +149,9 @@ func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	tokens.IsOnboarded = isOnboarded
 
-	utils.ReturnJson(w, tokens)
+	utils.ReturnJson(w, tokens, http.StatusOK)
 }
 
 func SignUpWithEmail(w http.ResponseWriter, r *http.Request) {
@@ -189,5 +200,5 @@ func SignUpWithEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ReturnJson(w, tokens)
+	utils.ReturnJson(w, tokens, http.StatusOK)
 }

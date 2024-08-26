@@ -6,7 +6,7 @@ migrate.up:
 migrate.down:
 	migrate -path $(MIGRATIONS_FOLDER) -database $(DATABASE_URL) -verbose down
 dev:
-	docker compose up -d
+	docker compose up
 down:
 	docker compose down
 docker.build:

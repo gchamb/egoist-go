@@ -1,11 +1,12 @@
 package structs
 
 type User struct {
-	ID         string  `db:"id"`
-	Email      string  `db:"email"`
-	Password   *string  `db:"password"`
-	GoalWeight *float32 `db:"goal_weight"`
-	CreatedAt  string  `db:"created_at"`
+	ID            string   `db:"id"`
+	Email         string   `db:"email"`
+	Password      *string  `db:"password"`
+	GoalWeight    *float32 `db:"goal_weight"`
+	CurrentWeight *float32 `db:"current_weight"`
+	CreatedAt     string   `db:"created_at"`
 }
 
 type ProgressEntry struct {
