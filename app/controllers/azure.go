@@ -13,8 +13,9 @@ import (
 )
 
 func GenerateUploadSaSUrl(w http.ResponseWriter, r *http.Request) {
+	mimetype := r.URL.Query().Get("mimetype")
 	
-	blobKey := uuid.New().String()
+	blobKey := uuid.New().String() + utils.MIMETYPES[mimetype]
 	blobClient, err := azure.GetBlobClient(azure.PROGRESS_ENTRY_CONTAINER, blobKey, true)
 
 	if err != nil {
