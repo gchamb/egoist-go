@@ -17,7 +17,7 @@ type ProgressEntry struct {
 	CreatedAt     string  `db:"created_at"`
 }
 
-type ProgressReports struct {
+type ProgressReport struct {
 	ID             string  `db:"id"`
 	GoalWeight     float32 `db:"goal_weight"`
 	CurrentWeight  float32 `db:"current_weight"`
@@ -26,9 +26,10 @@ type ProgressReports struct {
 	CreatedAt      string  `db:"created_at"`
 }
 
-type ProgressVideos struct {
+type ProgressVideo struct {
 	ID           string `db:"id"`
 	AzureBlobKey string `db:"azure_blob_key"`
+	Frequency    string `db:"frequency"`
 	UserID       string `db:"user_id"`
 	CreatedAt    string `db:"created_at"`
 }
