@@ -28,6 +28,15 @@ var MIMETYPES = map[string]string {
     "image/avif":   ".avif", // AV1 Image File Format (used on Android and modern browsers)
 }
 
+func Map[T structs.Assets, V structs.Assets](array []T, fn func(index int, item T) V) []V{
+	res := []V{}
+	for index, asset := range array{
+		res = append(res, fn(index, asset))
+	}
+
+	return res
+}
+
 func GenerateJWT(claims jwt.Claims) (string, error){
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))

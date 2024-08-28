@@ -33,3 +33,7 @@ type ProgressVideo struct {
 	UserID       string `db:"user_id"`
 	CreatedAt    string `db:"created_at"`
 }
+
+type Assets interface {
+	ProgressEntry | ProgressVideo
+}
