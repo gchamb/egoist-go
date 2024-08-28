@@ -11,6 +11,6 @@ import (
 func RegisterAssetRoutes(r chi.Router) {
 	r.Group(func (r chi.Router) {
 		r.Use(middlewares.AuthenticateJWT)
-		r.Get("/assets", controllers.GenerateUploadSaSUrl)
+		r.Get("/assets", controllers.GetAssets)
 	})
 }
