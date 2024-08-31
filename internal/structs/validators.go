@@ -67,3 +67,11 @@ func ValidateGetAssetsParams(w http.ResponseWriter, r *http.Request) (int, int, 
 
 	return take, page, frequency, nil
 }
+
+func (req *PutAssetRequest) ValidPutAssetRequest() (error) {
+	if req.Key == "" || req.CurrentWeight < 70 || req.Timezone == ""{
+		return errors.New("invalid request")
+	}
+
+	return nil
+}

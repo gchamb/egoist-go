@@ -21,6 +21,7 @@ func main() {
 		routes.RegisterUserRoutes(r)
 		routes.RegisterAzureRoutes(r)
 		routes.RegisterAssetRoutes(r)
+		routes.RegisterEntryRoutes(r)
 	})
 
 	var port string
