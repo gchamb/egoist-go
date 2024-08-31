@@ -31,6 +31,7 @@ CREATE TABLE progress_video (
     id VARCHAR(36) PRIMARY KEY,
     azure_blob_key VARCHAR(255) NOT NULL,
     user_id VARCHAR(36) NOT NULL,
+    frequency VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
