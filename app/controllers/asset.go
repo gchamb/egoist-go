@@ -61,9 +61,42 @@ func GetAssets(w http.ResponseWriter, r *http.Request) {
 		entries = utils.Map(entries, func (_ int, item structs.ProgressEntry) structs.ProgressEntry {
 
 			blobClient, err := azure.GetBlobClient(azure.PROGRESS_ENTRY_CONTAINER, item.AzureBlobKey, true)
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				panic(err.Error())
+			}
 		
 			permissions := sas.BlobPermissions{Read: true}
 			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				panic(err.Error())
+			}
+
+			item.AzureBlobKey = sas
+
+			return item
+		})
+
+
+		videos = utils.Map(videos, func (_ int, item structs.ProgressVideo) structs.ProgressVideo {
+
+			blobClient, err := azure.GetBlobClient(azure.PROGRESS_VIDEO_CONTAINER, item.AzureBlobKey, true)
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError) 
+				panic(err.Error())
+			}
+		
+			permissions := sas.BlobPermissions{Read: true}
+			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				panic(err.Error())
+			}
 
 			item.AzureBlobKey = sas
 
@@ -80,6 +113,28 @@ func GetAssets(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		entries = utils.Map(entries, func (_ int, item structs.ProgressEntry) structs.ProgressEntry {
+
+			blobClient, err := azure.GetBlobClient(azure.PROGRESS_ENTRY_CONTAINER, item.AzureBlobKey, true)
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				panic(err.Error())
+			}
+		
+			permissions := sas.BlobPermissions{Read: true}
+			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				panic(err.Error())
+			}
+
+			item.AzureBlobKey = sas
+
+			return item
+		})
+
 		// map over entries to return readable sas url links
 		res["entries"] = entries
 	}else if strings.Contains(assetType, "progress-video"){
@@ -89,6 +144,28 @@ func GetAssets(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
+		videos = utils.Map(videos, func (_ int, item structs.ProgressVideo) structs.ProgressVideo {
+
+			blobClient, err := azure.GetBlobClient(azure.PROGRESS_VIDEO_CONTAINER, item.AzureBlobKey, true)
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError) 
+				panic(err.Error())
+			}
+		
+			permissions := sas.BlobPermissions{Read: true}
+			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
+
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				panic(err.Error())
+			}
+
+			item.AzureBlobKey = sas
+
+			return item
+		})
 
 		// map over entries to return readable sas url links
 		res["videos"] = videos
