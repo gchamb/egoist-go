@@ -34,6 +34,15 @@ type ProgressVideo struct {
 	CreatedAt    string `db:"created_at" json:"createdAt"`
 }
 
+type RevenueCatSubscriber struct {
+	ID             string `db:"id"`
+	TransactionID  string `db:"transaction_id"`
+	UserID         string `db:"user_id"`
+	ProductID      string `db:"product_id"`
+	PurchasedAtMs  int64  `db:"purchased_at_ms"`
+	ExpirationAtMs int64  `db:"expiration_at_ms"`
+}
+
 type Assets interface {
 	ProgressEntry | ProgressVideo
 }
