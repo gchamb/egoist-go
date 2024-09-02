@@ -14,4 +14,5 @@ type AuthResponse struct {
 	JwtToken    string `json:"jwt_token"`
 	FreshToken  string `json:"refresh_token"`
 	IsOnboarded bool   `json:"is_onboarded"`
+	Uid         string `json:"uid"`
 }

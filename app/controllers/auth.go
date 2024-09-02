@@ -101,6 +101,7 @@ func SignInWithGoogle(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	tokens.Uid = id
 	tokens.IsOnboarded = isOnboarded
 
 	utils.ReturnJson(w, tokens, http.StatusOK)
@@ -150,6 +151,7 @@ func SignInWithEmail(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tokens.IsOnboarded = isOnboarded
+	tokens.Uid = user.ID
 
 	utils.ReturnJson(w, tokens, http.StatusOK)
 }
@@ -199,6 +201,7 @@ func SignUpWithEmail(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+	tokens.Uid = userId
 
 	utils.ReturnJson(w, tokens, http.StatusOK)
 }
