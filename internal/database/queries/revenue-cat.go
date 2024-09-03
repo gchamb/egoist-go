@@ -11,7 +11,7 @@ func (q *Queries) CreateSubscriber(subscriber structs.RevenueCatSubscriber) (err
 }
 
 func (q *Queries) UpdateSubscriber(expiration int64, uid string) (error){
-	query := `UPDATE revenue_cat_subscriber SET expiration_at_ms = ? where user_id = ?"`
+	query := `UPDATE revenue_cat_subscriber SET expiration_at_ms = ? where user_id = ?`
 
 	_, err := q.DB.Exec(query, expiration, uid)
 
