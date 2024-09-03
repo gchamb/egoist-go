@@ -55,6 +55,7 @@ func RevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
+		fmt.Println("User ID", eventData.Event.AppUserID)
 
 		db := database.ConnectDB()
 		queries := queries.New(db)
@@ -63,6 +64,7 @@ func RevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 
 
 		if err != nil {
+			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
