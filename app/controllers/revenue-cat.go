@@ -33,6 +33,7 @@ func RevenueCatWebhook(w http.ResponseWriter, r *http.Request) {
 		
 		sub := structs.RevenueCatSubscriber {
 			ID: eventData.Event.ID,
+			ProductID: eventData.Event.ProductID,
 			TransactionID: eventData.Event.TransactionID,
 			ExpirationAtMs: eventData.Event.ExpirationAtMs,
 			PurchasedAtMs: eventData.Event.PurchasedAtMs,
