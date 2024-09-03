@@ -35,3 +35,13 @@ CREATE TABLE progress_video (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
+
+CREATE TABLE revenue_cat_subscriber (
+    id VARCHAR(255) PRIMARY KEY,
+    transaction_id VARCHAR(255) UNIQUE,
+    product_id VARCHAR(30) NOT NULL,
+    purchased_at_ms BIGINT NOT NULL,
+    expiration_at_ms BIGINT NOT NULL,
+    user_id VARCHAR(36) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(id)
+)
