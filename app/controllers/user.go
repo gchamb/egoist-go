@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 func OnboardUser(w http.ResponseWriter, r *http.Request){
@@ -46,7 +47,17 @@ func OnboardUser(w http.ResponseWriter, r *http.Request){
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	entry := structs.ProgressEntry{AzureBlobKey: requestBody.Key, CurrentWeight: *requestBody.CurrentWeight, UserID: uid}
+
+	timeInTz, err := time.LoadLocation(requestBody.Tz)
+	if err != nil {
+		txn.Rollback()
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	
+	todaysDateInTimezone := time.Now().In(timeInTz)
+	createdAt := fmt.Sprintf("%d-%d-%d",todaysDateInTimezone.Year(), todaysDateInTimezone.Month(), todaysDateInTimezone.Day())
+	entry := structs.ProgressEntry{AzureBlobKey: requestBody.Key, CurrentWeight: *requestBody.CurrentWeight, UserID: uid , CreatedAt: createdAt}
 	if _, err := queries.CreateProgressEntry(txn, entry); err != nil {
 		txn.Rollback()
 		fmt.Println(err.Error())
