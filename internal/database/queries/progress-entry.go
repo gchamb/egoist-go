@@ -3,8 +3,7 @@ package queries
 import (
 	"database/sql"
 	"egoist/internal/structs"
-	"fmt"
-	"time"
+	"errors"
 
 	"github.com/google/uuid"
 )
@@ -14,8 +13,7 @@ func (q *Queries) InsertProgressEntry(txn *sql.Tx, entry structs.ProgressEntry) 
 
 
 	if entry.CreatedAt == ""{
-		date := time.Now()
-		entry.CreatedAt = fmt.Sprintf("%d-%d-%d", date.Year(), date.Month(), date.Day())
+		return errors.New("no created at field was passed")
 	}
 	
 	if txn == nil {
