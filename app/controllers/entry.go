@@ -37,7 +37,7 @@ func PutEntry(w http.ResponseWriter, r *http.Request) {
 	todaysDateInTimezone := time.Now().In(location)
 	date := fmt.Sprintf("%d-%d-%d",todaysDateInTimezone.Year(), todaysDateInTimezone.Month(), todaysDateInTimezone.Day())
 
-	entry := structs.ProgressEntry{AzureBlobKey: requestBody.Key, CurrentWeight: requestBody.CurrentWeight, UserID: uid, CreatedAt: date }
+	entry := structs.ProgressEntry{BlobKey: requestBody.Key, CurrentWeight: requestBody.CurrentWeight, UserID: uid, CreatedAt: date }
 	
 	if _, err := queries.CreateProgressEntry(nil, entry); err != nil {
 		fmt.Println(err.Error())

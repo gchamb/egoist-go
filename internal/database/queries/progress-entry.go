@@ -17,18 +17,18 @@ func (q *Queries) InsertProgressEntry(txn *sql.Tx, entry structs.ProgressEntry) 
 	}
 	
 	if txn == nil {
-		query = `INSERT INTO progress_entry (id, azure_blob_key, current_weight, user_id, created_at)
-        VALUES (:id, :azure_blob_key, :current_weight, :user_id, :created_at)`
+		query = `INSERT INTO progress_entry (id, blob_key, current_weight, user_id, created_at)
+        VALUES (:id, :blob_key, :current_weight, :user_id, :created_at)`
 
 		_, err := q.DB.NamedExec(query, entry)
 		return err
 	}	
 	
-	query = `INSERT INTO progress_entry (id, azure_blob_key, current_weight, user_id, created_at)
+	query = `INSERT INTO progress_entry (id, blob_key, current_weight, user_id, created_at)
         VALUES (?, ?, ?, ?, ?)`
 		
 
-	_, err := txn.Exec(query, entry.ID, entry.AzureBlobKey, entry.CurrentWeight, entry.UserID, entry.CreatedAt);
+	_, err := txn.Exec(query, entry.ID, entry.BlobKey, entry.CurrentWeight, entry.UserID, entry.CreatedAt);
 	return err
 }
 

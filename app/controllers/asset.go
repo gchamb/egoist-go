@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"database/sql"
-	"egoist/internal/azure"
+	"egoist/internal/aws"
 	"egoist/internal/database"
 	"egoist/internal/database/queries"
 	"egoist/internal/structs"
@@ -11,9 +11,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
-	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/sas"
 )
 
 // should be able to do the following based on query params:
@@ -59,23 +56,15 @@ func GetAssets(w http.ResponseWriter, r *http.Request) {
 
 		// map over videos and entries to return readable sas url links
 		entries = utils.Map(entries, func (_ int, item structs.ProgressEntry) structs.ProgressEntry {
+			presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour * 2))
 
-			blobClient, err := azure.GetBlobClient(azure.PROGRESS_ENTRY_CONTAINER, item.AzureBlobKey, true)
-
-			if err != nil {
+			if err  != nil {
+				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				panic(err.Error())
 			}
-		
-			permissions := sas.BlobPermissions{Read: true}
-			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
-
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				panic(err.Error())
-			}
-
-			item.AzureBlobKey = sas
+			
+			item.BlobKey = presignedReq.URL
 
 			return item
 		})
@@ -83,22 +72,15 @@ func GetAssets(w http.ResponseWriter, r *http.Request) {
 
 		videos = utils.Map(videos, func (_ int, item structs.ProgressVideo) structs.ProgressVideo {
 
-			blobClient, err := azure.GetBlobClient(azure.PROGRESS_VIDEO_CONTAINER, item.AzureBlobKey, true)
+			presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour * 2))
 
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError) 
-				panic(err.Error())
-			}
-		
-			permissions := sas.BlobPermissions{Read: true}
-			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
-
-			if err != nil {
+			if err  != nil {
+				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				panic(err.Error())
 			}
-
-			item.AzureBlobKey = sas
+			
+			item.BlobKey = presignedReq.URL
 
 			return item
 		})
@@ -114,23 +96,15 @@ func GetAssets(w http.ResponseWriter, r *http.Request) {
 		}
 
 		entries = utils.Map(entries, func (_ int, item structs.ProgressEntry) structs.ProgressEntry {
+			presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour * 2))
 
-			blobClient, err := azure.GetBlobClient(azure.PROGRESS_ENTRY_CONTAINER, item.AzureBlobKey, true)
-
-			if err != nil {
+			if err  != nil {
+				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				panic(err.Error())
 			}
-		
-			permissions := sas.BlobPermissions{Read: true}
-			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
-
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				panic(err.Error())
-			}
-
-			item.AzureBlobKey = sas
+			
+			item.BlobKey = presignedReq.URL
 
 			return item
 		})
@@ -146,23 +120,15 @@ func GetAssets(w http.ResponseWriter, r *http.Request) {
 		}
 
 		videos = utils.Map(videos, func (_ int, item structs.ProgressVideo) structs.ProgressVideo {
+			presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour * 2))
 
-			blobClient, err := azure.GetBlobClient(azure.PROGRESS_VIDEO_CONTAINER, item.AzureBlobKey, true)
-
-			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError) 
-				panic(err.Error())
-			}
-		
-			permissions := sas.BlobPermissions{Read: true}
-			sas, err := blobClient.GetSASURL(permissions, time.Now().Add(time.Hour), &blob.GetSASURLOptions{})
-
-			if err != nil {
+			if err  != nil {
+				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				panic(err.Error())
 			}
-
-			item.AzureBlobKey = sas
+			
+			item.BlobKey = presignedReq.URL
 
 			return item
 		})

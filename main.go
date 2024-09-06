@@ -19,7 +19,7 @@ func main() {
 		routes.RegisterHealthRoutes(r)
 		routes.RegisterAuthRoutes(r)
 		routes.RegisterUserRoutes(r)
-		routes.RegisterAzureRoutes(r)
+		routes.RegisterAWSRoutes(r)
 		routes.RegisterAssetRoutes(r)
 		routes.RegisterEntryRoutes(r)
 		routes.RegisterRevenueCatRoutes(r)
