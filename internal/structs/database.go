@@ -11,7 +11,7 @@ type User struct {
 
 type ProgressEntry struct {
 	ID            string  `db:"id" json:"id"`
-	AzureBlobKey  string  `db:"azure_blob_key" json:"azureBlobKey"`
+	BlobKey       string  `db:"blob_key" json:"blobKey"`
 	CurrentWeight float32 `db:"current_weight" json:"currentWeight"`
 	UserID        string  `db:"user_id" json:"userId"`
 	CreatedAt     string  `db:"created_at" json:"createdAt"`
@@ -27,11 +27,11 @@ type ProgressReport struct {
 }
 
 type ProgressVideo struct {
-	ID           string `db:"id" json:"id"`
-	AzureBlobKey string `db:"azure_blob_key" json:"azureBlobKey"`
-	Frequency    string `db:"frequency" json:"frequency"`
-	UserID       string `db:"user_id" json:"userId"`
-	CreatedAt    string `db:"created_at" json:"createdAt"`
+	ID        string `db:"id" json:"id"`
+	BlobKey   string `db:"blob_key" json:"blobKey"`
+	Frequency string `db:"frequency" json:"frequency"`
+	UserID    string `db:"user_id" json:"userId"`
+	CreatedAt string `db:"created_at" json:"createdAt"`
 }
 
 type RevenueCatSubscriber struct {

@@ -9,7 +9,7 @@ CREATE TABLE user (
 
 CREATE TABLE progress_entry (
     id VARCHAR(36) PRIMARY KEY,
-    azure_blob_key VARCHAR(255) UNIQUE NOT NULL,
+    blob_key VARCHAR(255) UNIQUE NOT NULL,
     current_weight FLOAT NOT NULL,
     user_id VARCHAR(36) NOT NULL,
     created_at DATE DEFAULT (CURRENT_DATE),
@@ -29,7 +29,7 @@ CREATE TABLE progress_report (
 
 CREATE TABLE progress_video (
     id VARCHAR(36) PRIMARY KEY,
-    azure_blob_key VARCHAR(255) NOT NULL,
+    blob_key VARCHAR(255) NOT NULL,
     user_id VARCHAR(36) NOT NULL,
     frequency VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
