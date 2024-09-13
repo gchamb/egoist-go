@@ -1,6 +1,5 @@
 package structs
 
-
 type RevenueCatEvent struct {
 	Event struct {
 		EventTimestampMs         int64       `json:"event_timestamp_ms"`
@@ -37,4 +36,3 @@ type RevenueCatEvent struct {
 	} `json:"event"`
 	APIVersion string `json:"api_version"`
 }
-

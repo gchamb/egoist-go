@@ -21,7 +21,7 @@ ADD UNIQUE INDEX (user_id, created_at);
 CREATE TABLE progress_report (
     id VARCHAR(36) PRIMARY KEY,
     current_weight FLOAT NOT NULL,
-    last_week_weight FLOAT NOT NULL,
+    last_weight FLOAT NOT NULL,
     user_id VARCHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id)
