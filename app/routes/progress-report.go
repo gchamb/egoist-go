@@ -10,6 +10,7 @@ import (
 func RegisterProgressReportRoutes(r chi.Router) {
 	r.Group(func(r chi.Router) {
 		r.Use(middlewares.AuthenticateJWT)
-		r.Post("/progress-report/view", controllers.IsNewReport)
+		r.Get("/progress-report/{reportId}", controllers.GetReport)
+		// r.Get("/progress-report/all", controllers.GetReports) # not needed rn
 	})
 }

@@ -5,36 +5,29 @@ import (
 	"errors"
 )
 
-func (q *Queries) GetLatestProgressReport(uid string) (structs.ProgressReport, error) {
+func (q *Queries) GetReportById(id string, uid string) (structs.ProgressReport, error) {
 	var query string
-	var report []structs.ProgressReport
+	var reports []structs.ProgressReport
 
-	if uid == ""{
-		return report[0], errors.New("uid wasn't provided for query")
+	if uid == "" {
+		return structs.ProgressReport{}, errors.New("uid wasn't provided for query")
+	}
+
+	if id == ""{
+		return structs.ProgressReport{}, errors.New("report id wasn't provided for query")
 	}
 
 	
-	query = "SELECT * FROM progress_report where user_id = ? and viewed = ? LIMIT 1";
+	query = "SELECT * FROM progress_report where user_id = ? and id = ?";
 	
-	if err := q.DB.Select(&report, query, uid, 0); err != nil {
-		return report[0], err
+	if err := q.DB.Select(&reports, query, uid, id); err != nil {
+		return structs.ProgressReport{}, err
 	}
 
-	return report[0], nil
-}
-
-func (q *Queries) UpdateProgressReportViewed(viewed bool, reportId string, uid string) error {
-	var query string
-	
-
-	if reportId == ""{
-		return errors.New("report id wasn't provided for query.")
+	if len(reports) == 0 {
+		return structs.ProgressReport{}, errors.New("report doesn't exist")
 	}
 
-	
-	query = "UPDATE progress_report SET viewed = ? WHERE id = ? and user_id = ?";
-	
-	_, err := q.DB.Exec(query, viewed, reportId, uid)
-		
-	return err
+
+	return reports[0], nil
 }

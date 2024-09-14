@@ -23,7 +23,6 @@ CREATE TABLE progress_report (
     current_weight FLOAT NOT NULL,
     last_weight FLOAT NOT NULL,
     user_id VARCHAR(36) NOT NULL,
-    viewed BOOLEAN NOT NULL,
     frequency VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id)
