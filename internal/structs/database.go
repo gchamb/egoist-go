@@ -19,7 +19,6 @@ type ProgressEntry struct {
 
 type ProgressReport struct {
 	ID            string  `db:"id" json:"id"`
-	GoalWeight    float32 `db:"goal_weight" json:"goalWeight"`
 	CurrentWeight float32 `db:"current_weight" json:"currentWeight"`
 	LastWeight    float32 `db:"last_weight" json:"lastWeight"`
 	Viewed		  bool 	  `db:"viewed" json:"viewed"`

@@ -23,6 +23,7 @@ func main() {
 		routes.RegisterAssetRoutes(r)
 		routes.RegisterEntryRoutes(r)
 		routes.RegisterRevenueCatRoutes(r)
+		routes.RegisterProgressReportRoutes(r)
 	})
 
 	var port string
