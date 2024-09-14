@@ -22,6 +22,7 @@ type ProgressReport struct {
 	GoalWeight    float32 `db:"goal_weight" json:"goalWeight"`
 	CurrentWeight float32 `db:"current_weight" json:"currentWeight"`
 	LastWeight    float32 `db:"last_weight" json:"lastWeight"`
+	Viewed		  bool 	  `db:"viewed" json:"viewed"`
 	UserID        string  `db:"user_id" json:"userId"`
 	CreatedAt     string  `db:"created_at" json:"createdAt"`
 }
