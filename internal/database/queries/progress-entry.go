@@ -55,3 +55,14 @@ func (q *Queries) GetProgressEntries(uid string, take int, skip int) ([] structs
 
 	return entries, err
 }
+
+func (q *Queries) GetProgressEntryByDate(date string, uid string) ([]structs.ProgressEntry, error) {
+	query := "SELECT * from progress_entry where user_id = ? and created_at = ?"
+
+	entries := []structs.ProgressEntry{}
+    if err := q.DB.Select(&entries, query, uid, date); err != nil && err != sql.ErrNoRows {
+		return entries, err
+	}
+
+	return entries, nil
+}
