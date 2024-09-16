@@ -13,16 +13,16 @@ import (
 )
 
 // should be able to do the following based on query params:
-// - get only images (progress-entry)
-// - get only videos (progress-videos)
-// 	 -- able to filter by weekly or monthly
-// - get both (progress-entry and progress-videos)
-// - able to determine how of each they want
-func GetAssets(global *app.Globals) http.HandlerFunc{
+//   - get only images (progress-entry)
+//   - get only videos (progress-videos)
+//     -- able to filter by weekly or monthly
+//   - get both (progress-entry and progress-videos)
+//   - able to determine how of each they want
+func GetAssets(global *app.Globals) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		uid := r.Context().Value("uid").(string)
 		assetType := r.URL.Query().Get("type")
-	
+
 		// validate inputs
 		take, page, frequency, err := structs.ValidateGetAssetsParams(w, r)
 		if err != nil {
@@ -30,7 +30,7 @@ func GetAssets(global *app.Globals) http.HandlerFunc{
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		skip := (page - 1) * take
 
 		res := map[string]interface{}{}
@@ -47,37 +47,37 @@ func GetAssets(global *app.Globals) http.HandlerFunc{
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-	
+
 			// map over videos and entries to return readable sas url links
 			entries = utils.Map(entries, func(_ int, item structs.ProgressEntry) structs.ProgressEntry {
 				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
-	
+
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
 					panic(err.Error())
 				}
-	
+
 				item.BlobKey = presignedReq.URL
-	
+
 				return item
 			})
-	
+
 			videos = utils.Map(videos, func(_ int, item structs.ProgressVideo) structs.ProgressVideo {
-	
+
 				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
-	
+
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
 					panic(err.Error())
 				}
-	
+
 				item.BlobKey = presignedReq.URL
-	
+
 				return item
 			})
-	
+
 			res["videos"] = videos
 			res["entries"] = entries
 		} else if strings.Contains(assetType, "progress-entry") {
@@ -87,21 +87,21 @@ func GetAssets(global *app.Globals) http.HandlerFunc{
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-	
+
 			entries = utils.Map(entries, func(_ int, item structs.ProgressEntry) structs.ProgressEntry {
 				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
-	
+
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
 					panic(err.Error())
 				}
-	
+
 				item.BlobKey = presignedReq.URL
-	
+
 				return item
 			})
-	
+
 			// map over entries to return readable sas url links
 			res["entries"] = entries
 		} else if strings.Contains(assetType, "progress-video") {
@@ -111,29 +111,29 @@ func GetAssets(global *app.Globals) http.HandlerFunc{
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-	
+
 			videos = utils.Map(videos, func(_ int, item structs.ProgressVideo) structs.ProgressVideo {
 				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
-	
+
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
 					panic(err.Error())
 				}
-	
+
 				item.BlobKey = presignedReq.URL
-	
+
 				return item
 			})
-	
+
 			// map over entries to return readable sas url links
 			res["videos"] = videos
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		utils.ReturnJson(w, res, http.StatusOK)
 	}
-	
+
 }

@@ -106,19 +106,19 @@ func SignInWithGoogle(global *app.Globals) http.HandlerFunc {
 
 func SignInWithEmail(global *app.Globals) http.HandlerFunc {
 
-	return func(w http.ResponseWriter, r *http.Request){
+	return func(w http.ResponseWriter, r *http.Request) {
 		var requestBody structs.AuthRequest
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&requestBody)
-	
+
 		err := requestBody.ValidateAuthRequest()
-	
+
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		user, err := global.Queries.GetUserByEmail(requestBody.Email)
 		isOnboarded := false
 		if err != nil {
@@ -126,17 +126,17 @@ func SignInWithEmail(global *app.Globals) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		if err = bcrypt.CompareHashAndPassword([]byte(*user.Password), []byte(requestBody.Password)); err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		if user.GoalWeight != nil {
 			isOnboarded = true
 		}
-	
+
 		tokens, err := utils.GenerateTokens(user.ID)
 		if err != nil {
 			log.Println(err.Error())
@@ -145,10 +145,10 @@ func SignInWithEmail(global *app.Globals) http.HandlerFunc {
 		}
 		tokens.IsOnboarded = isOnboarded
 		tokens.Uid = user.ID
-	
+
 		utils.ReturnJson(w, tokens, http.StatusOK)
 	}
-	
+
 }
 
 func SignUpWithEmail(global *app.Globals) http.HandlerFunc {
@@ -157,28 +157,28 @@ func SignUpWithEmail(global *app.Globals) http.HandlerFunc {
 		var requestBody structs.AuthRequest
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&requestBody)
-	
+
 		err := requestBody.ValidateAuthRequest()
-	
+
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		if _, err := global.Queries.GetUserByEmail(requestBody.Email); err != sql.ErrNoRows {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		password, err := bcrypt.GenerateFromPassword([]byte(requestBody.Password), 12)
 		if err != nil {
 			log.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	
+
 		passwordAsStr := string(password)
 		userId, err := global.Queries.CreateUser(requestBody.Email, &passwordAsStr)
 		if err != nil {
@@ -186,7 +186,7 @@ func SignUpWithEmail(global *app.Globals) http.HandlerFunc {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	
+
 		tokens, err := utils.GenerateTokens(userId)
 		if err != nil {
 			log.Println(err.Error())
@@ -194,8 +194,8 @@ func SignUpWithEmail(global *app.Globals) http.HandlerFunc {
 			return
 		}
 		tokens.Uid = userId
-	
+
 		utils.ReturnJson(w, tokens, http.StatusOK)
 	}
-	
+
 }

@@ -21,11 +21,11 @@ func main() {
 	router.Route("/api/v1", func(r chi.Router) {
 		routes.RegisterHealthRoutes(r)
 		routes.RegisterAuthRoutes(r, global)
-		routes.RegisterUserRoutes(r)
-		routes.RegisterAWSRoutes(r)
-		routes.RegisterAssetRoutes(r)
-		routes.RegisterEntryRoutes(r)
-		routes.RegisterRevenueCatRoutes(r)
+		routes.RegisterUserRoutes(r, global)
+		routes.RegisterAWSRoutes(r, global)
+		routes.RegisterAssetRoutes(r, global)
+		routes.RegisterEntryRoutes(r, global)
+		routes.RegisterRevenueCatRoutes(r, global)
 	})
 
 	var port string

@@ -9,6 +9,6 @@ import (
 
 func RegisterAuthRoutes(r chi.Router, global *app.Globals) {
 	r.Post("/auth/google", controllers.SignInWithGoogle(global))
-	r.Post("/auth/signin", controllers.SignInWithEmail(global) )
+	r.Post("/auth/signin", controllers.SignInWithEmail(global))
 	r.Post("/auth/signup", controllers.SignUpWithEmail(global))
 }

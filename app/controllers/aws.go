@@ -18,7 +18,7 @@ func GenerateUploadPresignedUrl(global *app.Globals) http.HandlerFunc {
 
 		mimetype := r.URL.Query().Get("mimetype")
 		tz := r.URL.Query().Get("tz")
-	
+
 		// make sure they haven't uploaded already using their tz
 		loc, err := time.LoadLocation(tz)
 		if err != nil {
@@ -26,10 +26,10 @@ func GenerateUploadPresignedUrl(global *app.Globals) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		todaysDateInTimezone := time.Now().In(loc)
 		date := fmt.Sprintf("%d-%d-%d", todaysDateInTimezone.Year(), todaysDateInTimezone.Month(), todaysDateInTimezone.Day())
-	
+
 		entries, err := global.Queries.GetProgressEntryByDate(date, uid)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -41,23 +41,23 @@ func GenerateUploadPresignedUrl(global *app.Globals) http.HandlerFunc {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		if _, ok := utils.MIMETYPES[mimetype]; !ok {
 			fmt.Println("invalid mimetype")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-	
+
 		blobKey := uuid.New().String() + utils.MIMETYPES[mimetype]
 		blobKey = fmt.Sprintf("%s/%s", egoistAws.PROGRESS_ENTRY_CONTAINER, blobKey)
-	
+
 		presignedReq, err := egoistAws.CreatePresignedUrl(blobKey, "WRITE", time.Now().Add(time.Minute))
 		if err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-	
+
 		res := map[string]interface{}{
 			"url": presignedReq.URL,
 			"key": blobKey,
@@ -66,7 +66,7 @@ func GenerateUploadPresignedUrl(global *app.Globals) http.HandlerFunc {
 				"expires": presignedReq.SignedHeader.Get("Expires"),
 			},
 		}
-	
+
 		utils.ReturnJson(w, res, http.StatusOK)
 	}
 }
