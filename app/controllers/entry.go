@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"database/sql"
 	"egoist/internal/database"
 	"egoist/internal/database/queries"
 	"egoist/internal/structs"
@@ -25,6 +26,15 @@ func PutEntry(w http.ResponseWriter, r *http.Request) {
 
 	db := database.ConnectDB()
 	queries := queries.New(db)
+	
+	txn, err := queries.DB.BeginTx(r.Context(), &sql.TxOptions{})
+	defer txn.Commit()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	location, err := time.LoadLocation(requestBody.Timezone);
 
@@ -39,7 +49,13 @@ func PutEntry(w http.ResponseWriter, r *http.Request) {
 
 	entry := structs.ProgressEntry{BlobKey: requestBody.Key, CurrentWeight: requestBody.CurrentWeight, UserID: uid, CreatedAt: date }
 	
-	if _, err := queries.CreateProgressEntry(nil, entry); err != nil {
+	if _, err := queries.CreateProgressEntry(txn, entry); err != nil {
+		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err := queries.UpdateUser(txn, r.Context(), structs.UpdateUserRequest{CurrentWeight: &requestBody.CurrentWeight}, uid); err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
 		return
