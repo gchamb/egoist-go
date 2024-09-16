@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"egoist/internal/structs"
-	"errors"
 
 	"github.com/google/uuid"
 )
@@ -57,21 +56,34 @@ func (q *Queries) CreateUser(email string, password *string) (string, error){
 }
 
 func (q *Queries) UpdateUser(txn *sql.Tx, ctx context.Context, userDetails structs.UpdateUserRequest, uid string) (error) {
-		if userDetails.CurrentWeight == nil && userDetails.GoalWeight == nil {
-			return errors.New("user details must have values")
-		}
+		
 	
-		if userDetails.CurrentWeight != nil {
+	
+	if txn != nil {
+		if userDetails.CurrentWeight != nil && *userDetails.CurrentWeight != 0{
 			if _, err := txn.Exec("UPDATE user SET current_weight = ? where id = ?", *userDetails.CurrentWeight, uid); err != nil {
 				return err
 			}
 		}
 	
-		if userDetails.GoalWeight != nil {
+		if userDetails.GoalWeight != nil && *userDetails.GoalWeight != 0 {
 			if _, err := txn.Exec("UPDATE user SET goal_weight = ? where id = ?", *userDetails.GoalWeight, uid); err != nil {
 				return err
 			}
 		}
+	}else {
+		if userDetails.CurrentWeight != nil && *userDetails.CurrentWeight != 0 {
+			if _, err := q.DB.Exec("UPDATE user SET current_weight = ? where id = ?", *userDetails.CurrentWeight, uid); err != nil {
+				return err
+			}
+		}
+
+		if userDetails.GoalWeight != nil && *userDetails.GoalWeight != 0{
+			if _, err := q.DB.Exec("UPDATE user SET goal_weight = ? where id = ?", *userDetails.GoalWeight, uid); err != nil {
+				return err
+			}
+		}
+	}
 	
-		return nil
+	return nil
 }
