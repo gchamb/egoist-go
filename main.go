@@ -1,7 +1,9 @@
 package main
 
 import (
+	"egoist/app"
 	"egoist/app/routes"
+	"egoist/internal/database"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,19 +12,20 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+
 func main() {
+	global := app.NewGlobal(database.ConnectDB())
+
 	router := chi.NewRouter()
-	
 	router.Use(middleware.Logger)
-	// register routes
 	router.Route("/api/v1", func(r chi.Router) {
 		routes.RegisterHealthRoutes(r)
-		routes.RegisterAuthRoutes(r)
-		routes.RegisterUserRoutes(r)
-		routes.RegisterAWSRoutes(r)
-		routes.RegisterAssetRoutes(r)
-		routes.RegisterEntryRoutes(r)
-		routes.RegisterRevenueCatRoutes(r)
+		routes.RegisterAuthRoutes(r, global)
+		routes.RegisterUserRoutes(r, global)
+		routes.RegisterAWSRoutes(r, global)
+		routes.RegisterAssetRoutes(r, global)
+		routes.RegisterEntryRoutes(r, global)
+		routes.RegisterRevenueCatRoutes(r, global)
 	})
 
 	var port string
