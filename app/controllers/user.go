@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"egoist/app"
 	"egoist/internal/structs"
+	"egoist/internal/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -108,4 +109,25 @@ func UpdateUser(global *app.Globals) http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 	}
 
+}
+
+func GetUser(global * app.Globals) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		uid := r.Context().Value("uid").(string)
+
+		user, err := global.Queries.GetUserByID(uid)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		userData := map[string]float32 {
+			"goalWeight": *user.GoalWeight,
+			"currentWeight": *user.CurrentWeight,
+		}
+
+		utils.ReturnJson(w, userData, http.StatusOK)
+	}
 }
