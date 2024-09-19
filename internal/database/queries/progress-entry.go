@@ -48,7 +48,7 @@ func (q *Queries) CreateProgressEntry(txn *sql.Tx, entry structs.ProgressEntry) 
 }
 
 func (q *Queries) GetProgressEntries(uid string, take int, skip int) ([] structs.ProgressEntry, error){
-	query := "SELECT * from progress_entry where user_id = ? ORDER BY created_at ASC LIMIT ? OFFSET ?"
+	query := "SELECT * from progress_entry where user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
 
 	entries := []structs.ProgressEntry{}
     err := q.DB.Select(&entries, query, uid, take, skip)
