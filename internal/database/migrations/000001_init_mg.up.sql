@@ -32,7 +32,7 @@ CREATE TABLE progress_video (
     blob_key VARCHAR(255) NOT NULL,
     user_id VARCHAR(36) NOT NULL,
     frequency VARCHAR(10) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
