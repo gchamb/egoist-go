@@ -14,7 +14,6 @@ CREATE TABLE progress_entry (
     user_id VARCHAR(36) NOT NULL,
     created_at DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY (user_id) REFERENCES user(id)
-    ON DELETE CASCADE
 );
 ALTER TABLE progress_entry 
 ADD UNIQUE INDEX (user_id, created_at);
@@ -26,7 +25,6 @@ CREATE TABLE progress_report (
     user_id VARCHAR(36) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(id)
-    ON DELETE CASCADE
 );
 
 CREATE TABLE progress_video (
@@ -36,7 +34,6 @@ CREATE TABLE progress_video (
     frequency VARCHAR(10) NOT NULL,
     created_at DATE DEFAULT (CURRENT_DATE),
     FOREIGN KEY (user_id) REFERENCES user(id)
-    ON DELETE CASCADE
 );
 
 CREATE TABLE revenue_cat_subscriber (
@@ -47,5 +44,4 @@ CREATE TABLE revenue_cat_subscriber (
     expiration_at_ms BIGINT NOT NULL,
     user_id VARCHAR(36) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(id)
-    ON DELETE CASCADE
 )
