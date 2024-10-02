@@ -55,6 +55,11 @@ func (q *Queries) CreateUser(email string, password *string) (string, error){
 	return id.String(), err
 }
 
+func (q *Queries) DeleteUser(uid string) (error){	
+	_, err := q.DB.Exec("DELETE from user WHERE id = ?", uid)
+	return err
+}
+
 func (q *Queries) UpdateUser(txn *sql.Tx, ctx context.Context, userDetails structs.UpdateUserRequest, uid string) (error) {
 		
 	
