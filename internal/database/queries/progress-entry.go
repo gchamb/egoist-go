@@ -56,6 +56,15 @@ func (q *Queries) GetProgressEntries(uid string, take int, skip int) ([] structs
 	return entries, err
 }
 
+func (q *Queries) GetAllProgressEntries(uid string) ([] structs.ProgressEntry, error){
+	query := "SELECT * from progress_entry where user_id = ?"
+
+	entries := []structs.ProgressEntry{}
+    err := q.DB.Select(&entries, query, uid)
+
+	return entries, err
+}
+
 func (q *Queries) GetProgressEntryByDate(date string, uid string) ([]structs.ProgressEntry, error) {
 	query := "SELECT * from progress_entry where user_id = ? and created_at = ?"
 

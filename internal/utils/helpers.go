@@ -28,7 +28,7 @@ var MIMETYPES = map[string]string {
     "image/avif":   ".avif", // AV1 Image File Format (used on Android and modern browsers)
 }
 
-func Map[T structs.Assets, V structs.Assets](array []T, fn func(index int, item T) V) []V{
+func Map[T structs.Assets, V any](array []T, fn func(index int, item T) V) []V{
 	res := []V{}
 	for index, asset := range array{
 		res = append(res, fn(index, asset))

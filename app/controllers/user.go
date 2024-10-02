@@ -3,12 +3,16 @@ package controllers
 import (
 	"database/sql"
 	"egoist/app"
+	"egoist/internal/aws"
 	"egoist/internal/structs"
 	"egoist/internal/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 )
 
 func OnboardUser(global *app.Globals) http.HandlerFunc {
@@ -129,5 +133,95 @@ func GetUser(global * app.Globals) http.HandlerFunc {
 		}
 
 		utils.ReturnJson(w, userData, http.StatusOK)
+	}
+}
+
+
+func DeleteUser(global * app.Globals) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		uid := r.Context().Value("uid").(string)
+
+		_, err := global.Queries.GetUserByID(uid)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		s3Client, err := aws.NewS3Client()
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		// get all entries
+		videos, err := global.Queries.GetAllProgressVideos(uid)
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if len(videos) > 0 {
+			videosToDelete := utils.Map(videos, func(idx int, item structs.ProgressVideo) types.ObjectIdentifier  {
+				return types.ObjectIdentifier{
+					Key: &item.BlobKey,
+				}
+			})		
+	
+	
+			if _, err := s3Client.DeleteObjects(r.Context(), &s3.DeleteObjectsInput{
+				Bucket: &aws.BUCKET_NAME,
+				Delete: &types.Delete{
+					Objects: videosToDelete ,
+				} ,
+			}); err != nil {
+				fmt.Println(err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+		}
+
+		// get all progress videos
+		entries, err := global.Queries.GetAllProgressEntries(uid)
+		if err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		if len(entries) > 0 {
+
+			entriesToDelete := utils.Map(entries, func(idx int, item structs.ProgressEntry) types.ObjectIdentifier  {
+				return types.ObjectIdentifier{
+					Key: &item.BlobKey,
+				}
+			})		
+	
+	
+			if _, err := s3Client.DeleteObjects(r.Context(), &s3.DeleteObjectsInput{
+				Bucket: &aws.BUCKET_NAME,
+				Delete: &types.Delete{
+					Objects: entriesToDelete ,
+				} ,
+			}); err != nil {
+				fmt.Println(err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+		}
+		
+
+		// delete user and deletes all other records on cascade
+		if err := global.Queries.DeleteUser(uid); err != nil {
+			fmt.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
 	}
 }
