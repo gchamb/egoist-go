@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+type JWK struct {
+	Kid string `json:"kid"`
+	Kty string `json:"kty"`
+	Alg string `json:"alg"`
+	Use string `json:"use"`
+	N   string `json:"n"`
+	E   string `json:"e"`
+}
+
 func (req *AuthRequest) ValidateAuthRequest() error {
 	if req.Email == "" {
 		return errors.New("invalid email")
