@@ -22,7 +22,12 @@ func AuthenticateJWT(next http.Handler) http.Handler {
 			return
 		}
 			
-		userId, err := utils.VerifyToken(jwtToken)
+		claims, err := utils.VerifyToken(jwtToken, false)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		userId, err := claims.GetSubject()
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
