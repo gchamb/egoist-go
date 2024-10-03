@@ -22,6 +22,12 @@ func (q *Queries) GetUserByID(id string) (structs.User, error) {
 	return user, err
 }
 
+func (q *Queries) GetUserByAppleID(apple_id string) (structs.User, error) {
+	var user structs.User
+	err := q.DB.Get(&user, "SELECT * FROM user WHERE apple_id = ?", apple_id)
+	return user, err
+}
+
 func (q *Queries) GetUserByEmail(email string) (structs.User, error){
 	var user structs.User
 	err := q.DB.Get(&user, "SELECT * FROM user WHERE email = ?", email)
@@ -30,20 +36,20 @@ func (q *Queries) GetUserByEmail(email string) (structs.User, error){
 
 
 func (q *Queries) InsertUser(user structs.User) (error) {
-	_, err := q.DB.NamedExec(`INSERT INTO user (id, email, password, goal_weight, current_weight)
-        VALUES (:id, :email, :password, :goal_weight, :current_weight)`, user)
+	_, err := q.DB.NamedExec(`INSERT INTO user (id, apple_id, email, password, goal_weight, current_weight)
+        VALUES (:id, :apple_id, :email, :password, :goal_weight, :current_weight)`, user)
 		
 	return err
 }
 
-func (q *Queries) CreateUser(email string, password *string) (string, error){
+func (q *Queries) CreateUser(email *string, password *string, appleId *string) (string, error){
 	id, err := uuid.NewUUID()
 	if err != nil {
 		return "", err
 	}
-
 	err = q.InsertUser(structs.User{
 		ID:    id.String(),
+		AppleID: appleId,
 		Email: email,
 		Password: password,
 	})
