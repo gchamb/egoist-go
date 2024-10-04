@@ -50,7 +50,7 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 
 			// map over videos and entries to return readable sas url links
 			entries = utils.Map(entries, func(_ int, item structs.ProgressEntry) structs.ProgressEntry {
-				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
+				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Duration(time.Hour * 24 * 7)))
 
 				if err != nil {
 					fmt.Println(err.Error())
@@ -65,7 +65,7 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 
 			videos = utils.Map(videos, func(_ int, item structs.ProgressVideo) structs.ProgressVideo {
 
-				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
+				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Duration(time.Hour * 24 * 7)))
 
 				if err != nil {
 					fmt.Println(err.Error())
@@ -89,7 +89,7 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 			}
 
 			entries = utils.Map(entries, func(_ int, item structs.ProgressEntry) structs.ProgressEntry {
-				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
+				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Duration(time.Hour * 24 * 7)))
 
 				if err != nil {
 					fmt.Println(err.Error())
@@ -113,7 +113,7 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 			}
 
 			videos = utils.Map(videos, func(_ int, item structs.ProgressVideo) structs.ProgressVideo {
-				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Hour*2))
+				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Duration(time.Hour * 24 * 7)))
 
 				if err != nil {
 					fmt.Println(err.Error())
