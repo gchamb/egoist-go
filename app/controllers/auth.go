@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -33,34 +32,12 @@ var googleOauthConfig = &oauth2.Config{
 
 func FreshJWT(global *app.Globals) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request)  {
-		// make sure the refresh token gives a valid user
-		// NOTE: duplicate code - ikik not DRY prinicples 
-		// I will refactor once im ready
-		
-		jwtToken := r.Header.Get("Authorization")
-		if jwtToken == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		jwtToken = strings.Trim(strings.Split(jwtToken, "Bearer")[1], " ")
-		if jwtToken == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-			
-		claims, err := utils.VerifyToken(jwtToken, false)
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		userId, err := claims.GetSubject()
+		userId, err := utils.ValidateJWT(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 
-		// does this user exist
 		if _, err := global.Queries.GetUserByID(userId); err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
