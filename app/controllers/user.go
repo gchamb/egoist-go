@@ -80,13 +80,14 @@ func UpdateUser(global *app.Globals) http.HandlerFunc {
 		var requestBody struct {
 			GoalWeight    *float32 `json:"goal_weight"`
 			CurrentWeight *float32 `json:"current_weight"`
+			ExpoToken	  *string  `json:"expo_token"`
 		}
 		decoder := json.NewDecoder(r.Body)
 		decoder.Decode(&requestBody)
 		fmt.Println(requestBody)
 
-		if requestBody.GoalWeight == nil && requestBody.CurrentWeight == nil {
-			fmt.Println("goal weight and current weight can't be empty")
+		if requestBody.GoalWeight == nil && requestBody.CurrentWeight == nil && requestBody.ExpoToken == nil {
+			fmt.Println("goal weight, current weight, and expo token can't be empty")
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
@@ -103,7 +104,13 @@ func UpdateUser(global *app.Globals) http.HandlerFunc {
 			return
 		}
 
-		updateUser := structs.UpdateUserRequest{GoalWeight: requestBody.GoalWeight, CurrentWeight: requestBody.CurrentWeight}
+		if requestBody.ExpoToken != nil && *requestBody.ExpoToken == ""{
+			fmt.Println("invalid expo token")
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		updateUser := structs.UpdateUserRequest{GoalWeight: requestBody.GoalWeight, CurrentWeight: requestBody.CurrentWeight, ExpoToken: requestBody.ExpoToken}
 		if err := global.Queries.UpdateUser(nil, r.Context(), updateUser, uid); err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)

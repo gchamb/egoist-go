@@ -94,6 +94,12 @@ func (q *Queries) UpdateUser(txn *sql.Tx, ctx context.Context, userDetails struc
 				return err
 			}
 		}
+
+		if userDetails.ExpoToken != nil && *userDetails.ExpoToken != "" {
+			if _, err := q.DB.Exec("UPDATE user SET expo_token = ? where id = ?", *userDetails.ExpoToken, uid); err != nil {
+				return err
+			}
+		}
 	}
 	
 	return nil

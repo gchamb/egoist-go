@@ -7,6 +7,7 @@ type User struct {
 	Password      *string  `db:"password"`
 	GoalWeight    *float32 `db:"goal_weight"`
 	CurrentWeight *float32 `db:"current_weight"`
+	ExpoToken     *string  `db:"expo_token"`
 	CreatedAt     string   `db:"created_at"`
 }
 
