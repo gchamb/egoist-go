@@ -6,7 +6,10 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
+	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 
 	"net/http"
@@ -26,6 +29,57 @@ var googleOauthConfig = &oauth2.Config{
 		"https://www.googleapis.com/auth/userinfo.email",
 	},
 	Endpoint: google.Endpoint,
+}
+
+func FreshJWT(global *app.Globals) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request)  {
+		// make sure the refresh token gives a valid user
+		// NOTE: duplicate code - ikik not DRY prinicples 
+		// I will refactor once im ready
+		
+		jwtToken := r.Header.Get("Authorization")
+		if jwtToken == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+		jwtToken = strings.Trim(strings.Split(jwtToken, "Bearer")[1], " ")
+		if jwtToken == "" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+			
+		claims, err := utils.VerifyToken(jwtToken, false)
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		userId, err := claims.GetSubject()
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+
+		// does this user exist
+		if _, err := global.Queries.GetUserByID(userId); err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		
+		// create new jwt_token
+		jwtClaims := jwt.RegisteredClaims{Subject: userId, ExpiresAt: jwt.NewNumericDate(time.Now().AddDate(0,0, 7))}
+		token, err := utils.GenerateJWT(jwtClaims, false)
+
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		
+		utils.ReturnJson(w, map[string]string {
+			"jwt_token" : token,
+		}, http.StatusOK)
+	}
 }
 
 func SignInWithGoogle(global *app.Globals) http.HandlerFunc {
