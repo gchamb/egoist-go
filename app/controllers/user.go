@@ -126,17 +126,27 @@ func GetUser(global * app.Globals) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		uid := r.Context().Value("uid").(string)
 
+		// i could default this to zero but maybe later
 		user, err := global.Queries.GetUserByID(uid)
-
+		var goalWeight float32 = 0
+		var currentWeight float32 = 0
+		
 		if err != nil {
 			fmt.Println(err.Error())
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 
+		if user.GoalWeight != nil {
+			goalWeight = *user.GoalWeight
+		}
+		if user.CurrentWeight != nil {
+			currentWeight = *user.CurrentWeight
+		}
+
 		userData := map[string]float32 {
-			"goalWeight": *user.GoalWeight,
-			"currentWeight": *user.CurrentWeight,
+			"goalWeight": goalWeight,
+			"currentWeight": currentWeight,
 		}
 
 		utils.ReturnJson(w, userData, http.StatusOK)
