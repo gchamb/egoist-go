@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"encoding/pem"
@@ -176,6 +177,30 @@ func convertJWKToRSAPublicKey(jwk structs.JWK) (*rsa.PublicKey, error) {
 	}
 
 	return pubKey, nil
+}
+
+func ValidateJWT(r *http.Request) (string, error) {
+	jwtToken := r.Header.Get("Authorization")
+	if jwtToken == "" {
+		
+		return "", errors.New("invalid jwt")
+	}
+
+	jwtToken = strings.Trim(strings.Split(jwtToken, "Bearer")[1], " ")
+	if jwtToken == "" {
+		return "", errors.New("invalid jwt")
+	}
+		
+	claims, err := VerifyToken(jwtToken, false)
+	if err != nil {
+		return "", err
+	}
+	userId, err := claims.GetSubject()
+	if err != nil {
+		return "", err
+	}
+
+	return userId, nil
 }
 
 func ReturnJson(w http.ResponseWriter, data any, status int){

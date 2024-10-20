@@ -10,29 +10,10 @@ import (
 
 func AuthenticateJWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		jwtToken := r.Header.Get("Authorization")
-		if jwtToken == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		jwtToken = strings.Trim(strings.Split(jwtToken, "Bearer")[1], " ")
-		if jwtToken == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-			
-		claims, err := utils.VerifyToken(jwtToken, false)
+		userId, err := utils.ValidateJWT(r)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			return
 		}
-		userId, err := claims.GetSubject()
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-
 		ctx := context.WithValue(r.Context(), "uid", userId)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	  })
