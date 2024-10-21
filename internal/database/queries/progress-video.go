@@ -19,3 +19,12 @@ func (q *Queries) GetAllProgressVideos(uid string) ([]structs.ProgressVideo, err
 
 	return videos, err
 }
+
+func (q *Queries) GetProgressVideosCount(uid string) (int, error) {
+	query := "SELECT count(*) from progress_video where user_id = ?"
+
+	count := 0
+    err := q.DB.Get(&count, query, uid)
+
+	return count, err
+}
