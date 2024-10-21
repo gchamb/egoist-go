@@ -47,6 +47,15 @@ func (q *Queries) CreateProgressEntry(txn *sql.Tx, entry structs.ProgressEntry) 
 	return id.String(), err
 }
 
+func (q *Queries) GetProgressEntryCount(uid string) (int, error) {
+	query := "SELECT count(*) from progress_entry where user_id = ?"
+
+	count := 0
+    err := q.DB.Get(&count, query, uid)
+
+	return count, err
+}
+
 func (q *Queries) GetProgressEntries(uid string, take int, skip int) ([] structs.ProgressEntry, error){
 	query := "SELECT * from progress_entry where user_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?"
 
