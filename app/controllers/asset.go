@@ -55,7 +55,6 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
-					panic(err.Error())
 				}
 
 				item.BlobKey = presignedReq.URL
@@ -70,7 +69,6 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
-					panic(err.Error())
 				}
 
 				item.BlobKey = presignedReq.URL
@@ -88,13 +86,19 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 				return
 			}
 
+			entriesCount, err := global.Queries.GetProgressEntryCount(uid)
+			if err != nil {
+				fmt.Println(err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
 			entries = utils.Map(entries, func(_ int, item structs.ProgressEntry) structs.ProgressEntry {
 				presignedReq, err := aws.CreatePresignedUrl(item.BlobKey, "READ", time.Now().Add(time.Duration(time.Hour * 24 * 7)))
 
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
-					panic(err.Error())
 				}
 
 				item.BlobKey = presignedReq.URL
@@ -104,8 +108,16 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 
 			// map over entries to return readable sas url links
 			res["entries"] = entries
+			res["hasNextPage"] = page * take < entriesCount
 		} else if strings.Contains(assetType, "progress-video") {
 			videos, err := global.Queries.GetProgressVideos(uid, take, skip, frequency)
+			if err != nil {
+				fmt.Println(err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			videosCount, err := global.Queries.GetProgressVideosCount(uid)
 			if err != nil {
 				fmt.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
@@ -118,7 +130,6 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 				if err != nil {
 					fmt.Println(err.Error())
 					w.WriteHeader(http.StatusInternalServerError)
-					panic(err.Error())
 				}
 
 				item.BlobKey = presignedReq.URL
@@ -128,6 +139,7 @@ func GetAssets(global *app.Globals) http.HandlerFunc {
 
 			// map over entries to return readable sas url links
 			res["videos"] = videos
+			res["hasNextPage"] = page * take < videosCount
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 			return
